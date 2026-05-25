@@ -1,0 +1,19 @@
+# Compiled files
+*.class
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# OS
+.DS_Store
+Thumbs.db
