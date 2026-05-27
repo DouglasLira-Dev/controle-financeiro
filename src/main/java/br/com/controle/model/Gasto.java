@@ -1,21 +1,25 @@
 package br.com.controle.model;
 
+import br.com.controle.utils.DateUtils;
+
 import java.time.LocalDate;
+
 
 public class Gasto {
     private int id;
     private String descricao;
     private double valor;
     private LocalDate data;
-    private String categoria;
+    private int categoriaId; // ID da categoria (chave estrangeira)
+    private String nomeCategoria; // nome da categoria (apenas para exibição, não salva)
 
     public Gasto() {}
 
-    public Gasto(String descricao, double valor, LocalDate data, String categoria) {
+    public Gasto(String descricao, double valor, LocalDate data, int categoriaId) {
         this.descricao = descricao;
         this.valor = valor;
         this.data = data;
-        this.categoria = categoria;
+        this.categoriaId = categoriaId;
     }
 
     // Getters e Setters
@@ -27,12 +31,14 @@ public class Gasto {
     public void setValor(double valor) { this.valor = valor; }
     public LocalDate getData() { return data; }
     public void setData(LocalDate data) { this.data = data; }
-    public String getCategoria() { return categoria; }
-    public void setCategoria(String categoria) { this.categoria = categoria; }
+    public int getCategoriaId() { return categoriaId; }
+    public void setCategoriaId(int categoriaId) { this.categoriaId = categoriaId; }
+    public String getNomeCategoria() { return nomeCategoria; }
+    public void setNomeCategoria(String nomeCategoria) { this.nomeCategoria = nomeCategoria; }
 
     @Override
     public String toString() {
         return String.format("[%d] %s - R$ %.2f (%s) - %s",
-                id, descricao, valor, categoria, data);
+                id, descricao, valor, nomeCategoria, DateUtils.exibir(data));
     }
 }

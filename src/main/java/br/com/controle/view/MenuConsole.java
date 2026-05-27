@@ -1,11 +1,14 @@
 package br.com.controle.view;
 
+import br.com.controle.dao.CategoriaDAO;
 import br.com.controle.dao.GastoDAO;
+import br.com.controle.model.Categoria;
 import br.com.controle.model.Gasto;
 import br.com.controle.database.ConnectionFactory;
+import br.com.controle.view.MenuCategoria;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import br.com.controle.utils.DateUtils;
 import java.util.List;
 import java.util.Scanner;
 
@@ -23,6 +26,7 @@ public class MenuConsole {
             System.out.println("3. Editar gasto");
             System.out.println("4. Excluir gasto");
             System.out.println("5. Total gasto no mês atual");
+            System.out.println("6. Gerenciar categorias");
             System.out.println("0. Sair");
             System.out.print("Escolha: ");
             op = lerInteiro();
@@ -33,11 +37,36 @@ public class MenuConsole {
                 case 3 -> editarGasto();
                 case 4 -> excluirGasto();
                 case 5 -> mostrarTotalMes();
+                case 6 -> MenuCategoria.executar();
                 case 0 -> System.out.println("Até logo!");
                 default -> System.out.println("Opção inválida.");
             }
         } while (op != 0);
         sc.close();
+    }
+    private static int escolherCategoria() {
+        CategoriaDAO catDAO = new CategoriaDAO();
+        List<Categoria> categorias = catDAO.listarTodas();
+
+        if (categorias.isEmpty()) {
+            System.out.println("Nenhuma categoria disponível. Cadastre uma categoria primeiro.");
+            return -1;
+        }
+
+        System.out.println("\n--- CATEGORIAS DISPONÍVEIS ---");
+        for (Categoria c : categorias) {
+            System.out.println(c);
+        }
+
+        System.out.print("Digite o ID da categoria: ");
+        int categoriaId = lerInteiro();
+        // Verificar se o ID existe na lista de categorias
+       Categoria escolhida = catDAO.buscarPorId(categoriaId);
+        if (escolhida == null) {
+            System.out.println("ID da categoria inválido. Operação cancelada.");
+            return -1;
+        }
+        return categoriaId;
     }
 
     private static void adicionarGasto() {
@@ -45,13 +74,24 @@ public class MenuConsole {
         String desc = sc.nextLine();
         System.out.print("Valor: ");
         double valor = lerDouble();
-        System.out.print("Data (AAAA-MM-DD): ");
+        System.out.print("Data (dd/MM/yyyy): ");
         LocalDate data = lerData();
-        System.out.print("Categoria (ex: Alimentação, Transporte): ");
-        String cat = sc.nextLine();
+        
+        // Listar categorias para o usuário escolher
+        int categoriaId = escolherCategoria();
+        if (categoriaId == -1) {
+            System.out.println("Operação cancelada. Nenhuma categoria selecionada.");
+            return;
+        }
 
-        Gasto g = new Gasto(desc, valor, data, cat);
+        Gasto g = new Gasto(desc, valor, data, categoriaId);
         dao.adicionar(g);
+        // Verifica se excedeu o limite da categoria
+        CategoriaDAO catDAO = new CategoriaDAO();
+        if (catDAO.excedeuLimite(categoriaId)) {
+            Categoria cat = catDAO.buscarPorId(categoriaId);
+            System.out.println("⚠️  ALERTA: O gasto excedeu o limite mensal da categoria '" + cat.getNome() + "'! ⚠️");
+        }
     }
 
     private static void listarGastos() {
@@ -74,12 +114,15 @@ public class MenuConsole {
         String desc = sc.nextLine();
         System.out.print("Novo valor: ");
         double valor = lerDouble();
-        System.out.print("Nova data (AAAA-MM-DD): ");
+        System.out.print("Nova data (dd/MM/yyyy): ");
         LocalDate data = lerData();
-        System.out.print("Nova categoria: ");
-        String cat = sc.nextLine();
+        // Escolher nova categoria
+        int categoriaId = escolherCategoria();
+        if (categoriaId == -1) {
+            return;
+        }
 
-        Gasto g = new Gasto(desc, valor, data, cat);
+        Gasto g = new Gasto(desc, valor, data, categoriaId);
         g.setId(id);
         dao.atualizar(g);
     }
@@ -120,9 +163,9 @@ public class MenuConsole {
         while (true) {
             try {
                 String dataStr = sc.nextLine();
-                return LocalDate.parse(dataStr);
-            } catch (DateTimeParseException e) {
-                System.out.print("Formato inválido! Use AAAA-MM-DD: ");
+                return DateUtils.parse(dataStr);
+            } catch (IllegalArgumentException e) {
+                System.out.print("Formato inválido! Use dd/MM/yyyy: ");
             }
         }
     }
