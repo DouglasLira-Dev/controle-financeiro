@@ -113,4 +113,24 @@ public class GastoDAO {
             return 0.0;
         }
     }
+    public double totalMesPorData(int mes, int ano) {
+        LocalDate data = LocalDate.of(ano, mes, 1);
+        String inicio = DateUtils.formatar(data.withDayOfMonth(1));
+        String fim = DateUtils.formatar(data.withDayOfMonth(data.lengthOfMonth()));
+        
+        String sql = "SELECT SUM(valor) as total FROM gastos WHERE data BETWEEN ? AND ?";
+        
+        try (Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, inicio);
+            ps.setString(2, fim);
+            ResultSet rs = ps.executeQuery();
+            return rs.getDouble("total");
+            
+        } catch (SQLException e) {
+            System.err.println("Erro ao calcular total do mês: " + e.getMessage());
+            return 0.0;
+        }
+    }
 }
