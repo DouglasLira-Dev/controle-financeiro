@@ -34,12 +34,24 @@ public class ConnectionFactory {
                 FOREIGN KEY(categoria_id) REFERENCES categorias(id)
             )
         """;
-        
+
+        // Cria tabela receitas
+        String sqlReceitas = """
+            CREATE TABLE IF NOT EXISTS receitas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                descricao TEXT NOT NULL,
+                valor REAL NOT NULL,
+                data TEXT NOT NULL,
+                categoria TEXT
+            )
+        """;
+
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
             
             stmt.execute(sqlCategorias);
             stmt.execute(sqlGastos);
+            stmt.execute(sqlReceitas);
             
             // Chama a migração de dados
             migrarDadosAntigos(conn);
