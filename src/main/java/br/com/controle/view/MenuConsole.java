@@ -6,6 +6,7 @@ import br.com.controle.model.Categoria;
 import br.com.controle.model.Gasto;
 import br.com.controle.database.ConnectionFactory;
 import br.com.controle.view.MenuCategoria;
+import br.com.controle.view.MenuReceita;
 
 import java.time.LocalDate;
 import br.com.controle.utils.DateUtils;
@@ -27,6 +28,7 @@ public class MenuConsole {
             System.out.println("4. Excluir gasto");
             System.out.println("5. Total gasto no mês atual");
             System.out.println("6. Gerenciar categorias");
+            System.out.println("7. Gerenciar receitas");
             System.out.println("0. Sair");
             System.out.print("Escolha: ");
             op = lerInteiro();
@@ -38,6 +40,7 @@ public class MenuConsole {
                 case 4 -> excluirGasto();
                 case 5 -> mostrarTotalMes();
                 case 6 -> MenuCategoria.executar();
+                case 7 -> MenuReceita.executar();
                 case 0 -> System.out.println("Até logo!");
                 default -> System.out.println("Opção inválida.");
             }
