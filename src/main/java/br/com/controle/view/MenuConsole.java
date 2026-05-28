@@ -7,6 +7,7 @@ import br.com.controle.model.Gasto;
 import br.com.controle.database.ConnectionFactory;
 import br.com.controle.view.MenuCategoria;
 import br.com.controle.view.MenuReceita;
+import br.com.controle.utils.BackupUtil;
 
 import java.time.LocalDate;
 import br.com.controle.utils.DateUtils;
@@ -16,7 +17,7 @@ import java.util.Scanner;
 public class MenuConsole {
     private static final Scanner sc = new Scanner(System.in);
     private static final GastoDAO dao = new GastoDAO();
-
+    
     public static void main(String[] args) {
         ConnectionFactory.initDatabase();
         int op;
@@ -29,6 +30,7 @@ public class MenuConsole {
             System.out.println("5. Total gasto no mês atual");
             System.out.println("6. Gerenciar categorias");
             System.out.println("7. Gerenciar receitas");
+            System.out.println("8. Backup e Restauração");
             System.out.println("0. Sair");
             System.out.print("Escolha: ");
             op = lerInteiro();
@@ -41,6 +43,7 @@ public class MenuConsole {
                 case 5 -> mostrarTotalMes();
                 case 6 -> MenuCategoria.executar();
                 case 7 -> MenuReceita.executar();
+                case 8 -> menuBackup();
                 case 0 -> System.out.println("Até logo!");
                 default -> System.out.println("Opção inválida.");
             }
@@ -171,5 +174,37 @@ public class MenuConsole {
                 System.out.print("Formato inválido! Use dd/MM/yyyy: ");
             }
         }
+    }
+    // Menu para backup e restauração
+    private static void menuBackup() {
+        int op;
+        do {
+            System.out.println("\n" + "=".repeat(50));
+            System.out.println("         💾 BACKUP E RESTAURAÇÃO");
+            System.out.println("=".repeat(50));
+            System.out.println("1. 📤 Fazer backup agora");
+            System.out.println("2. 📋 Listar backups disponíveis");
+            System.out.println("3. 🔄 Restaurar um backup");
+            System.out.println("4. 🔍 Verificar integridade do banco");
+            System.out.println("0. 🔙 Voltar");
+            System.out.print("👉 Escolha: ");
+            op = lerInteiro();
+        
+            switch (op) {
+                case 1 -> BackupUtil.fazerBackup();
+                case 2 -> BackupUtil.listarBackups();
+                case 3 -> restaurarBackup();
+                case 4 -> BackupUtil.verificarIntegridade();
+                case 0 -> System.out.println("Voltando...");
+                default -> System.out.println("Opção inválida!");
+            }
+         } while (op != 0);
+    }
+    // Método para restaurar backup
+    private static void restaurarBackup() {
+        BackupUtil.listarBackups();
+        System.out.print("\n📁 Digite o nome do arquivo de backup (ex: controle_20260528_115530.db): ");
+        String nomeArquivo = sc.nextLine();
+        BackupUtil.restaurarBackup(nomeArquivo);
     }
 }
